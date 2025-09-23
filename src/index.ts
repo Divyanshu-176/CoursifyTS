@@ -1,9 +1,12 @@
 import express from 'express'
-import bcrypt from 'bcrypt'
-import jwt from 'jsonwebtoken'
 import mongoose from 'mongoose'
 import dotenv from 'dotenv'
-import { Router } from 'express'
+
+
+
+import { adminRouter } from './routes/admin.js'
+import { userRouter } from './routes/user.js'
+import { courseRouter } from './routes/course.js'
 
 
 dotenv.config()
@@ -11,9 +14,28 @@ const app = express()
 app.use(express.json())
 
 
-app.get("/",(req,res)=>{
-    res.json({msg:"ihdiuhdiuh"})
-})
+
+
+app.use('/user',userRouter )
+app.use('/admin', adminRouter)
+app.use('/course', courseRouter)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -32,9 +54,7 @@ async function server():Promise<void>{
       console.log(`🚀 Server started on port: ${PORT}`);
       resolve();
     });
-  });
-
-    
+  });  
 }
 
 server().catch((err) => {
