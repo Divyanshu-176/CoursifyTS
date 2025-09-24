@@ -3,6 +3,7 @@ import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import dotenv from 'dotenv';
 import { adminModel, courseModel, purchaseModel, userModel } from "../database/db.js";
+import { userMiddleware } from "../middlewares/userMiddleware.js";
 dotenv.config();
 const USER_SECRET = process.env.USER_JWT_SECRET;
 export const userRouter = Router();
@@ -66,6 +67,30 @@ userRouter.post("/signin", async (req, res) => {
     catch (err) {
         console.error(err);
         res.status(500).json({ msg: "Server Error" });
+    }
+});
+userRouter.use(userMiddleware);
+userRouter.get("/purchases", async (req, res) => {
+    try {
+        const userId = req.userId;
+        if (!userId) {
+            res.status(401).json({ msg: "User not authenticated" });
+            return;
+        }
+        const purchases = await purchaseModel.find({ userId });
+        console.log(purchases);
+        if (purchases.length === 0) {
+            res.json({ msg: "User hant purchased any courses yet" });
+        }
+        const courseIds = purchases.map((p) => p.courseId);
+        const courseData = await courseModel.find({ _id: { $in: courseIds } });
+        res.json({
+            msg: "User ourchased courses",
+            userPurchasedCourses: courseData
+        });
+    }
+    catch (err) {
+        res.status(500).json({ msg: "Server error" });
     }
 });
 //# sourceMappingURL=user.js.map

@@ -2,7 +2,7 @@ import { Router, type Request,  type Response } from "express";
 import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
 import dotenv from'dotenv'
-import { adminModel, courseModel, purchaseModel, userModel,  type IUserDocument} from "../database/db.js";
+import { adminModel, courseModel, purchaseModel, userModel,  type ICourseDocument,  type IPurchaseDocument,  type IUserDocument} from "../database/db.js";
 import { userMiddleware } from "../middlewares/userMiddleware.js";
 
 dotenv.config()
@@ -87,3 +87,32 @@ userRouter.post("/signin", async(req:Request, res:Response):Promise<void>=>{
 
 
 userRouter.use(userMiddleware)
+
+
+interface AuthenticatedRequest extends Request {
+    userId?:string
+}
+userRouter.get("/purchases", async(req:AuthenticatedRequest, res:Response):Promise<void> => {
+    try{
+        const userId = req.userId
+        if(!userId){
+            res.status(401).json({msg:"User not authenticated"})
+            return
+        }
+
+        const purchases:IPurchaseDocument[]  = await purchaseModel.find({userId})
+        console.log(purchases)
+        if(purchases.length ===0){res.json({msg:"User hant purchased any courses yet"})}
+        const courseIds = purchases.map((p)=> p.courseId)
+
+        const courseData = await courseModel.find({_id:{$in: courseIds}})
+
+        res.json({
+            msg:"User ourchased courses",
+            userPurchasedCourses: courseData
+        })
+    }catch(err){
+        res.status(500).json({msg:"Server error"})
+
+    }
+})
