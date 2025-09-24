@@ -3,7 +3,7 @@ import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
 import dotenv from'dotenv'
 import { adminModel, courseModel, purchaseModel, userModel,  type IUserDocument} from "../database/db.js";
-
+import { userMiddleware } from "../middlewares/userMiddleware.js";
 
 dotenv.config()
 
@@ -84,3 +84,6 @@ userRouter.post("/signin", async(req:Request, res:Response):Promise<void>=>{
     }
 
 })
+
+
+userRouter.use(userMiddleware)
