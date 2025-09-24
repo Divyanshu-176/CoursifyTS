@@ -1,8 +1,11 @@
 import { Router } from "express";
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
+import dotenv from 'dotenv';
 import { adminModel, courseModel, purchaseModel, userModel } from "../database/db.js";
-const USER_JWT_SECRET = process.env.USER_JWT_SECRET;
+dotenv.config();
+const USER_SECRET = process.env.USER_JWT_SECRET;
+console.log(USER_SECRET);
 export const userRouter = Router();
 userRouter.post('/signup', async (req, res) => {
     try {
@@ -29,6 +32,38 @@ userRouter.post('/signup', async (req, res) => {
         res.status(500).json({
             msg: "Error has Occurred"
         });
+    }
+});
+userRouter.post("/signin", async (req, res) => {
+    const { email, password } = req.body;
+    try {
+        const user = await userModel.findOne({
+            email
+        });
+        if (!user) {
+            res.status(400).json({
+                msg: "This User doesn't exist"
+            });
+            return;
+        }
+        const hashCompare = await bcrypt.compare(password, user.password);
+        if (user && hashCompare) {
+            const token = jwt.sign({
+                id: user._id
+            }, USER_SECRET);
+            res.json({
+                token: token,
+                msg: "User has Signed In"
+            });
+        }
+        else {
+            res.status(400).json({
+                msg: "Invalid Credentials"
+            });
+        }
+    }
+    catch (err) {
+        console.error(err);
     }
 });
 //# sourceMappingURL=user.js.map
