@@ -8,7 +8,6 @@ import { adminModel, courseModel, purchaseModel, userModel,  type IUserDocument}
 dotenv.config()
 
 const USER_SECRET = process.env.USER_JWT_SECRET
-console.log(USER_SECRET)
 
 
 export const userRouter = Router()
@@ -65,9 +64,10 @@ userRouter.post("/signin", async(req:Request, res:Response):Promise<void>=>{
 
         const hashCompare = await bcrypt.compare(password, user.password)
         if(user && hashCompare){
+            if(!USER_SECRET) throw new Error ("JWT secret not defined")
             const token = jwt.sign({
                 id: user._id
-            },USER_SECRET!)
+            },USER_SECRET)
 
             res.json({
                 token:token,
@@ -80,6 +80,7 @@ userRouter.post("/signin", async(req:Request, res:Response):Promise<void>=>{
         }
     }catch(err){
         console.error(err)
+        res.status(500).json({msg:"Server Error"})
     }
 
 })

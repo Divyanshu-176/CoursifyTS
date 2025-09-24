@@ -5,7 +5,6 @@ import dotenv from 'dotenv';
 import { adminModel, courseModel, purchaseModel, userModel } from "../database/db.js";
 dotenv.config();
 const USER_SECRET = process.env.USER_JWT_SECRET;
-console.log(USER_SECRET);
 export const userRouter = Router();
 userRouter.post('/signup', async (req, res) => {
     try {
@@ -48,6 +47,8 @@ userRouter.post("/signin", async (req, res) => {
         }
         const hashCompare = await bcrypt.compare(password, user.password);
         if (user && hashCompare) {
+            if (!USER_SECRET)
+                throw new Error("JWT secret not defined");
             const token = jwt.sign({
                 id: user._id
             }, USER_SECRET);
@@ -64,6 +65,7 @@ userRouter.post("/signin", async (req, res) => {
     }
     catch (err) {
         console.error(err);
+        res.status(500).json({ msg: "Server Error" });
     }
 });
 //# sourceMappingURL=user.js.map
