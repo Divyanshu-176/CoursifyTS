@@ -102,7 +102,7 @@ userRouter.get("/purchases", async(req:AuthenticatedRequest, res:Response):Promi
 
         const purchases:IPurchaseDocument[]  = await purchaseModel.find({userId})
         console.log(purchases)
-        if(purchases.length ===0){res.json({msg:"User hant purchased any courses yet"})}
+        if(purchases.length ===0){res.json({msg:"User has'nt purchased any courses yet"})}
         const courseIds = purchases.map((p)=> p.courseId)
 
         const courseData = await courseModel.find({_id:{$in: courseIds}})
