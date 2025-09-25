@@ -4,6 +4,7 @@ import bcrypt from 'bcrypt'
 import dotenv from "dotenv"
 
 import { adminModel, courseModel, purchaseModel, type IAdminDocument } from "../database/db.js";
+import { adminMiddleware } from "../middlewares/adminMiddleware.js";
 
 
 
@@ -89,5 +90,24 @@ adminRouter.post("/signin", async(req:Request, res:Response):Promise<void>=>{
 
 
 
+adminRouter.use(adminMiddleware)
 
+
+interface AuthenticatedRequest extends Request{
+    adminId?:string
+}
+adminRouter.post('/course', async(req:AuthenticatedRequest, res:Response):Promise<void>=>{
+    const adminId = req.adminId
+    const {title, description, price}= req.body
+    const course = await courseModel.create({
+        title,
+        description,
+        price,
+        creatorId: adminId
+    })
+    res.json({
+        msg:"Admin has created a course",
+        courseId: course._id
+    })
+})
 

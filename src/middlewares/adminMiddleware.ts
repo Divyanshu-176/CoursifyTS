@@ -23,7 +23,6 @@ export function adminMiddleware(req:AuthenticatedRequest, res:Response, next:Nex
         req.adminId = decoded.id;
         next()
     } catch (error) {
-        res.status(403).json({msg:"Error occured and even I dont know what it is 😂😂😭"})
-        
+        res.status(403).json({msg:"Error occured and even I dont know what it is 😂😂😭"})       
     }
 }

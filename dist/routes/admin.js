@@ -3,6 +3,7 @@ import jwt from 'jsonwebtoken';
 import bcrypt from 'bcrypt';
 import dotenv from "dotenv";
 import { adminModel, courseModel, purchaseModel } from "../database/db.js";
+import { adminMiddleware } from "../middlewares/adminMiddleware.js";
 dotenv.config();
 const ADMIN_SECRET = process.env.ADMIN_JWT_SECRET;
 export const adminRouter = Router();
@@ -67,5 +68,20 @@ adminRouter.post("/signin", async (req, res) => {
         console.error(err);
         res.status(500).json({ msg: "Server Error" });
     }
+});
+adminRouter.use(adminMiddleware);
+adminRouter.post('/course', async (req, res) => {
+    const adminId = req.adminId;
+    const { title, description, price } = req.body;
+    const course = await courseModel.create({
+        title,
+        description,
+        price,
+        creatorId: adminId
+    });
+    res.json({
+        msg: "Admin has created a course",
+        courseId: course._id
+    });
 });
 //# sourceMappingURL=admin.js.map
