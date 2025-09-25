@@ -99,7 +99,9 @@ interface AuthenticatedRequest extends Request{
 adminRouter.post('/course', async(req:AuthenticatedRequest, res:Response):Promise<void>=>{
     const adminId = req.adminId
     const {title, description, price}= req.body
-    const course = await courseModel.create({
+
+    try {
+        const course = await courseModel.create({
         title,
         description,
         price,
@@ -109,5 +111,55 @@ adminRouter.post('/course', async(req:AuthenticatedRequest, res:Response):Promis
         msg:"Admin has created a course",
         courseId: course._id
     })
+        
+    } catch (error) {
+        res.status(500).json({msg:`error: ${error}`})
+    }
+    
 })
 
+
+
+adminRouter.put("/course", async(req:AuthenticatedRequest, res:Response)=>{
+    const {courseId, title, description, price} = req.body
+    const adminId = req.adminId
+
+    try{
+        const course = await courseModel.updateOne({
+            _id:courseId,
+            creatorId:adminId
+        },{
+            title,description, price
+        })
+        res.json({
+            msg:"Admin updated a course",
+            course
+        })
+    }catch(error){
+        res.status(403).json({
+            msg:`error : ${error}`
+        })
+    }
+})
+
+adminRouter.get("/course/bulk", async(req:AuthenticatedRequest,res:Response)=>{
+    const adminId = req.adminId
+
+    try {
+        const courses = await courseModel.find({
+            creatorId:adminId
+        })
+
+        res.json({
+        msg:"All courses created by admin",
+        courses
+        
+    })
+    } catch (error) {
+        res.status(403).json({
+            msg:`error: ${error}`
+        })
+        
+    }
+    
+})

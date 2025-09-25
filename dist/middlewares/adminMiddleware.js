@@ -12,9 +12,7 @@ export function adminMiddleware(req, res, next) {
             throw new Error("ADMIN_SECRET not defined");
         }
         const decoded = jwt.verify(token, ADMIN_SECRET);
-        console.log(decoded);
         req.adminId = decoded.id;
-        console.log(req.adminId);
         next();
     }
     catch (error) {
