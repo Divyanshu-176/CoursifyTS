@@ -51,12 +51,12 @@ async function server():Promise<void>{
     await new Promise<void>((resolve, reject) => {
     app.listen(PORT, (err?: any) => {
       if (err) return reject(err);
-      console.log(`🚀 Server started on port: ${PORT}`);
+      console.log(`Server started on port: ${PORT}`);
       resolve();
     });
   });  
 }
 
 server().catch((err) => {
-  console.error("❌ Server failed to start:", err);
+  console.error("Server failed to start:", err);
 });
